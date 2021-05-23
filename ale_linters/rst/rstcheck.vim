@@ -1,6 +1,8 @@
 " Author: John Nduli https://github.com/jnduli
 " Description: Rstcheck for reStructuredText files
 
+call ale#Set('rst_rstcheck_options', '')
+
 function! ale_linters#rst#rstcheck#Handle(buffer, lines) abort
     " matches: 'bad_rst.rst:1: (SEVERE/4) Title overline & underline
     " mismatch.'
@@ -21,11 +23,17 @@ function! ale_linters#rst#rstcheck#Handle(buffer, lines) abort
     return l:output
 endfunction
 
+function! ale_linters#rst#rstcheck#GetCommand(buffer) abort
+    let l:rst_rstcheck_options = ale#Var(a:buffer, 'rst_rstcheck_options')
+
+    return '%e' . ale#Pad(l:rst_rstcheck_options) . ' %t'
+endfunction
+
 call ale#linter#Define('rst', {
 \   'name': 'rstcheck',
 \   'executable': 'rstcheck',
 \   'cwd': '%s:h',
-\   'command': 'rstcheck %t',
+\   'command': function('ale_linters#rst#rstcheck#GetCommand'),
 \   'callback': 'ale_linters#rst#rstcheck#Handle',
 \   'output_stream': 'both',
 \})
